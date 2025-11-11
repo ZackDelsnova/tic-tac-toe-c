@@ -168,17 +168,22 @@ void saveGame(int mode, int turn) {
 int loadGame(int *mode, int *turn) {
     FILE *f = fopen(SAVE_FILE, "r");
     if (!f) return 0;
+
     if (fscanf(f, "%d %d", mode, turn) != 2) {
         fclose(f);
         return 0;
     }
+
     for (int i = 0; i < SIZE; i++) {
         for (int j = 0; j < SIZE; j++) {
-            fscanf(f, " %c", &board[i][j]);
+            if (fscanf(f, " %c", &board[i][j]) != 1) {
+                fclose(f);
+                return 0;
+			}
         }
-        fclose(f);
-        return 1;
     }
+	fclose(f);
+	return 1;
 }
 
 void playerMove(char player) {
@@ -276,9 +281,9 @@ int main() {
             else aiMove();
         }
 
+        turn = 1 - turn;
         saveGame(mode, turn);
         printf("(Auto-saved progress)\n");
-        turn = 1 - turn;
     }
 
     return 0;
